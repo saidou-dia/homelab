@@ -1,0 +1,10 @@
+---
+timezone: "UTC"
+ntp_server: "pool.ntp.org"
+package_list:
+  - vim
+  - git
+  - htop
+  - curl
+  - wget
+ssh_port: 22
