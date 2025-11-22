@@ -1,0 +1,53 @@
+---
+- name: Homelab – Déploiement complet
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - vault.yml   # (si tu utilises Ansible Vault pour mots de passe)
+
+  roles:
+    - role: common
+
+- name: Configuration réseau
+  hosts: all
+  become: true
+  roles:
+    - network
+
+- name: Configuration système
+  hosts: all
+  become: true
+  roles:
+    - system
+
+- name: Installation base de données
+  hosts: vms
+  become: true
+  roles:
+    - database
+
+- name: Services applicatifs
+  hosts: vms
+  become: true
+  roles:
+    - services
+
+- name: Monitoring
+  hosts: all
+  become: true
+  roles:
+    - monitoring
+
+- name: Mise à jour PVE
+  hosts: pve
+  become: true
+  roles:
+    - update_pve
+
+- name: Mise à jour VMs
+  hosts: vms
+  become: true
+  roles:
+    - update_vms
