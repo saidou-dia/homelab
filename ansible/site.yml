@@ -5,7 +5,7 @@
   gather_facts: true
 
   vars_files:
-    - vault.yml   # (si tu utilises Ansible Vault pour mots de passe)
+    - vault.yml   # Variables chiffrées avec Vault
 
   roles:
     - role: common
@@ -40,9 +40,19 @@
   roles:
     - monitoring
 
-- name: Mise à jour PVE et VMs
+# Mise à jour et installation spécifique
+- name: Gestion des paquets PVE et mise à jour de tous les systèmes
   hosts: all
   become: true
   roles:
-    - system
+    - role: system
+      tasks_from: install.yml   # Installe les paquets seulement sur PVE
+      when: "'pve' in group_names"
+
+- name: Mise à jour complète (PVE + VMs)
+  hosts: all
+  become: true
+  roles:
+    - role: system
+      tasks_from: update.yml    # Met à jour toutes les machines
 

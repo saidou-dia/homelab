@@ -9,7 +9,6 @@
 # Mettre à jour tous les systèmes (PVE et VMs)
 - name: Mettre à jour tous les systèmes
   import_tasks: update.yml
-
-
+  
 # Ici, tu peux ajouter d'autres tâches système (users, hardening, packages...)
 
