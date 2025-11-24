@@ -10,7 +10,6 @@ jobs:
   lint-and-syntax-check:
     name: Lint & Syntax Check
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,18 +24,15 @@ jobs:
           pip install ansible ansible-lint
 
       - name: Run ansible-lint
-        run: |
-          ansible-lint .
+        run: ansible-lint .
 
       - name: Check syntax (site.yml)
-        run: |
-          ansible-playbook -i inventories/dev/hosts.yml site.yml --syntax-check
+        run: ansible-playbook -i inventories/dev/hosts.yml site.yml --syntax-check
 
   dry-run:
     name: Dry Run (Check Mode)
     runs-on: ubuntu-latest
     needs: lint-and-syntax-check
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,17 +43,52 @@ jobs:
           python-version: "3.10"
 
       - name: Install Ansible
-        run: |
-          pip install ansible
+        run: pip install ansible
 
       - name: Inject vault password from GitHub Secrets
-        run: |
-          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault_pass.txt
+        run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault_pass.txt
 
-      - name: Run Ansible playbook in check mode (no changes)
+      - name: Dry run on PVE nodes
         run: |
           ansible-playbook \
             -i inventories/dev/hosts.yml \
             site.yml \
             --vault-password-file vault_pass.txt \
-            --check
+            --check \
+            --limit pve
+
+      - name: Dry run on VM nodes
+        run: |
+          ansible-playbook \
+            -i inventories/dev/hosts.yml \
+            site.yml \
+            --vault-password-file vault_pass.txt \
+            --check \
+            --limit vms
+
+# Optionnel: futur job pour appliquer en prod
+#  apply-prod:
+#    name: Apply on Production
+#    runs-on: ubuntu-latest
+#    needs: dry-run
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v5
+#        with:
+#          python-version: "3.10"
+#
+#      - name: Install Ansible
+#        run: pip install ansible
+#
+#      - name: Inject vault password
+#        run: echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault_pass.txt
+#
+#      - name: Apply playbook on production nodes
+#        run: |
+#          ansible-playbook \
+#            -i inventories/prod/hosts.yml \
+#            site.yml \
+#            --vault-password-file vault_pass.txt
