@@ -61,4 +61,3 @@ jobs:
             site.yml \
             --vault-password-file vault_pass.txt \
             --check
-
