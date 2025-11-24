@@ -1,14 +1,10 @@
-# roles/system/tasks/main.yml
 ---
-
 # Installer les paquets uniquement sur les PVE
 - name: Installer les paquets système sur PVE
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   when: "'pve' in group_names"
 
 # Mettre à jour tous les systèmes (PVE et VMs)
 - name: Mettre à jour tous les systèmes
-  import_tasks: update.yml
-  
-# Ici, tu peux ajouter d'autres tâches système (users, hardening, packages...)
+  ansible.builtin.import_tasks: update.yml
 

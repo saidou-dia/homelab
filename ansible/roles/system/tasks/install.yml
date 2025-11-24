@@ -1,14 +1,17 @@
 ---
-# Installer les paquets système essentiels sur les PVE
+# Variables pour l'installation
+system_package_list:
+  - vim
+  - git
+  - htop
+  - curl
+  - wget
+
+# Installer les paquets essentiels sur les PVE
 - name: Installer les paquets essentiels
-  apt:
-    name:
-      - vim
-      - git
-      - htop
-      - curl
-      - wget
+  ansible.builtin.apt:
+    name: "{{ system_package_list }}"
     state: present
-    update_cache: yes
+    update_cache: true
   when: "'pve' in group_names"
 

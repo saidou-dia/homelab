@@ -1,30 +1,31 @@
 ---
 # Mettre à jour tous les systèmes Debian/Ubuntu
+
 - name: Mettre à jour le cache APT
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
   when: ansible_os_family == "Debian"
 
 - name: Mettre à jour tous les paquets installés
-  apt:
+  ansible.builtin.apt:
     upgrade: dist
   when: ansible_os_family == "Debian"
 
 - name: Autoremove les paquets inutilisés
-  apt:
-    autoremove: yes
+  ansible.builtin.apt:
+    autoremove: true
   when: ansible_os_family == "Debian"
 
-- name: Reboot si nécessaire après mise à jour
-  reboot:
+- name: Installer unattended-upgrades pour mises à jour automatiques
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Redémarrer si nécessaire après mise à jour
+  ansible.builtin.reboot:
     msg: "Redémarrage automatique après mise à jour"
     pre_reboot_delay: 5
     post_reboot_delay: 30
   when: ansible_facts['pkg_mgr'] == 'apt'
-
-- name: Installer unattended-upgrades pour mises à jour automatiques
-  apt:
-    name: unattended-upgrades
-    state: present
-  when: ansible_os_family == "Debian"
 
