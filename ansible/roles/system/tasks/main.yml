@@ -1,7 +1,15 @@
+# roles/system/tasks/main.yml
 ---
-# Include update tasks
-- name: Perform system updates
-  include_tasks: update.yml
+
+# Installer les paquets uniquement sur les PVE
+- name: Installer les paquets système sur PVE
+  import_tasks: install.yml
+  when: "'pve' in group_names"
+
+# Mettre à jour tous les systèmes (PVE et VMs)
+- name: Mettre à jour tous les systèmes
+  import_tasks: update.yml
+
 
 # Ici, tu peux ajouter d'autres tâches système (users, hardening, packages...)
 
