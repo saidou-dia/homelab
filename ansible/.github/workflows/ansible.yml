@@ -1,30 +1,64 @@
-name: Test Ansible
+name: CI Ansible
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  ansible-test:
+  lint-and-syntax-check:
+    name: Lint & Syntax Check
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.11"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Install Ansible
-      run: |
-        pip install ansible
+      - name: Install Ansible and tools
+        run: |
+          pip install ansible ansible-lint
 
-    - name: Create vault pass (from GitHub Secret)
-      run: echo "${{ secrets.VAULT_PASSWORD }}" > vault_pass.txt
+      - name: Run ansible-lint
+        run: |
+          ansible-lint .
 
-    - name: Syntax check
-      run: ansible-playbook site.yml --syntax-check --vault-password-file vault_pass.txt
+      - name: Check syntax (site.yml)
+        run: |
+          ansible-playbook -i inventories/dev/hosts.yml site.yml --syntax-check
+
+  dry-run:
+    name: Dry Run (Check Mode)
+    runs-on: ubuntu-latest
+    needs: lint-and-syntax-check
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Ansible
+        run: |
+          pip install ansible
+
+      - name: Inject vault password from GitHub Secrets
+        run: |
+          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > vault_pass.txt
+
+      - name: Run Ansible playbook in check mode (no changes)
+        run: |
+          ansible-playbook \
+            -i inventories/dev/hosts.yml \
+            site.yml \
+            --vault-password-file vault_pass.txt \
+            --check
+
