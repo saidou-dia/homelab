@@ -1,14 +1,34 @@
+
 ---
-- name: Update all packages on Debian/Ubuntu
+# Update packages on Debian/Ubuntu systems
+- name: Update package cache
   apt:
     update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Upgrade all packages
+  apt:
     upgrade: dist
   when: ansible_os_family == "Debian"
 
-- name: Reboot if needed after upgrade
+# Optional: autoremove unused packages
+- name: Autoremove unused packages
+  apt:
+    autoremove: yes
+  when: ansible_os_family == "Debian"
+
+# Reboot if needed
+- name: Reboot if required
   reboot:
     msg: "Reboot initiated by Ansible after system upgrade"
     pre_reboot_delay: 5
     post_reboot_delay: 30
   when: ansible_facts['pkg_mgr'] == 'apt'
+
+# Optional: ensure unattended-upgrades are installed for auto updates
+- name: Ensure unattended-upgrades installed
+  apt:
+    name: unattended-upgrades
+    state: present
+  when: ansible_os_family == "Debian"
 
