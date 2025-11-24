@@ -40,14 +40,9 @@
   roles:
     - monitoring
 
-- name: Mise à jour PVE
-  hosts: pve
+- name: Mise à jour PVE et VMs
+  hosts: all
   become: true
   roles:
-    - update_pve
+    - system
 
-- name: Mise à jour VMs
-  hosts: vms
-  become: true
-  roles:
-    - update_vms

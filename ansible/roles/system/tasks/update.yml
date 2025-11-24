@@ -1,0 +1,14 @@
+---
+- name: Update all packages on Debian/Ubuntu
+  apt:
+    update_cache: yes
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+
+- name: Reboot if needed after upgrade
+  reboot:
+    msg: "Reboot initiated by Ansible after system upgrade"
+    pre_reboot_delay: 5
+    post_reboot_delay: 30
+  when: ansible_facts['pkg_mgr'] == 'apt'
+

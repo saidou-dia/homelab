@@ -1,0 +1,6 @@
+---
+# Tâches système classiques
+- name: Include update tasks
+  include_tasks: update.yml
+
+# Ici tu peux ajouter d'autres tâches system (users, packages, hardening...)
